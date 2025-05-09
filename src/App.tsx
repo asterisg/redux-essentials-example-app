@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
+import { ToastContainer } from 'react-tiny-toast'
 
 import { useAppSelector } from './app/hooks'
 import { Navbar } from './components/Navbar'
@@ -41,6 +42,7 @@ function App() {
                   <Route path="/users/:userId" element={<UserPage />} />
                   <Route path="/notifications" element={<NotificationsList />} />
                 </Routes>
+                <ToastContainer />
               </ProtectedRoute>
             }
           />

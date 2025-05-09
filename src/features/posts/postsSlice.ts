@@ -1,4 +1,5 @@
 import { RootState } from '@/app/store'
+import { AppStartListening } from '@/app/listenerMiddleware'
 import { createSelector, createEntityAdapter, EntityState } from '@reduxjs/toolkit'
 import { client } from '@/api/client'
 import { logout } from '../auth/authSlice'
@@ -140,6 +141,24 @@ export const selectPostsByUser = createSelector(
   [selectAllPosts, (state: RootState, userId: string) => userId],
   (posts, userId) => posts.filter((post) => post.user === userId),
 )
+
+export const addPostsListeners = (startAppListening: AppStartListening) => {
+  startAppListening({
+    actionCreator: addNewPost.fulfilled,
+    effect: async (action, listenerApi) => {
+      const { toast } = await import('react-tiny-toast')
+
+      const toastId = toast.show('New post added!', {
+        variant: 'success',
+        position: 'bottom-right',
+        pause: true,
+      })
+
+      await listenerApi.delay(5000)
+      toast.remove(toastId)
+    },
+  })
+}
 
 // Export the generated reducer function
 export default postsSlice.reducer
