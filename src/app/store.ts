@@ -1,5 +1,6 @@
 import { Action, ThunkAction, configureStore } from '@reduxjs/toolkit'
 
+import { apiSlice } from '@/features/api/apiSlice'
 import authReudcer from '@/features/auth/authSlice'
 import postReducer from '@/features/posts/postsSlice'
 import userReducer from '@/features/users/usersSlice'
@@ -13,8 +14,10 @@ export const store = configureStore({
     posts: postReducer,
     users: userReducer,
     notifications: notificationsReducer,
+    [apiSlice.reducerPath]: apiSlice.reducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().prepend(listenerMiddleware.middleware),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().prepend(listenerMiddleware.middleware).concat(apiSlice.middleware),
 })
 
 // Infer the type of `store`
