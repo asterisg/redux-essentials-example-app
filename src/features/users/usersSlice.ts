@@ -1,4 +1,5 @@
 import type { RootState } from '@/app/store'
+import { createEntityAdapter } from '@reduxjs/toolkit'
 import { selectCurrentUsername } from '@/features/auth/authSlice'
 import { createAppSlice } from '@/app/createAppSlice'
 import { client } from '@/api/client'
@@ -8,7 +9,9 @@ interface User {
   name: string
 }
 
-const initialState: User[] = []
+const usersAdapter = createEntityAdapter<User>()
+
+const initialState = usersAdapter.getInitialState()
 
 const usersSlice = createAppSlice({
   name: 'users',
@@ -21,7 +24,7 @@ const usersSlice = createAppSlice({
           return response.data
         },
         {
-          fulfilled: (state, action) => action.payload,
+          fulfilled: usersAdapter.setAll,
         },
       ),
     }
@@ -30,14 +33,16 @@ const usersSlice = createAppSlice({
 
 export default usersSlice.reducer
 
+export const { selectAll: selectAllUsers, selectById: selectUserById } = usersAdapter.getSelectors(
+  (state: RootState) => state.users,
+)
+
 export const { fetchUsers } = usersSlice.actions
-
-export const selectAllUsers = (state: RootState) => state.users
-
-export const selectUserById = (state: RootState, userId: string | null) =>
-  state.users.find((user) => user.id === userId)
 
 export const selectCurrentUser = (state: RootState) => {
   const currentUsername = selectCurrentUsername(state)
+  if (!currentUsername) {
+    return
+  }
   return selectUserById(state, currentUsername)
 }
