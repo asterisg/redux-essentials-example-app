@@ -2,7 +2,7 @@ import { RootState } from '@/app/store'
 import { createAppAsyncThunk } from '@/app/withTypes'
 import { nanoid } from '@reduxjs/toolkit'
 import { client } from '@/api/client'
-import { userLoggedOut } from '../auth/authSlice'
+import { logout } from '../auth/authSlice'
 import { createAppSlice } from '@/app/createAppSlice'
 
 export interface Reactions {
@@ -133,7 +133,7 @@ const postsSlice = createAppSlice({
     }
   },
   extraReducers: (builder) => {
-    builder.addCase(userLoggedOut, (state) => {
+    builder.addCase(logout.fulfilled, (state) => {
       // Clear out the list of posts whenever the user logs out
       return initialState
     })
@@ -147,12 +147,17 @@ const postsSlice = createAppSlice({
     },
     selectPostsStatus: (state) => state.status,
     selectPostsError: (state) => state.error,
+    selectPostsByUser: (state, userId: string) => {
+      // ❌ This seems suspicious! See more details below
+      return state.posts.filter((post) => post.user === userId)
+    },
   },
 })
 
 export const { postAdded, postUpdated, reactionAdded, fetchPosts, addNewPost } = postsSlice.actions
 
-export const { selectAllPosts, selectPostById, selectPostsError, selectPostsStatus } = postsSlice.selectors
+export const { selectAllPosts, selectPostById, selectPostsError, selectPostsStatus, selectPostsByUser } =
+  postsSlice.selectors
 
 // Export the generated reducer function
 export default postsSlice.reducer

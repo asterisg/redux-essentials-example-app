@@ -1,5 +1,6 @@
 import { RootState } from '@/app/store'
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createAppSlice } from '@/app/createAppSlice'
+import { client } from '@/api/client'
 
 interface AuthState {
   username: string | null
@@ -11,20 +12,37 @@ const initialState: AuthState = {
   username: null,
 }
 
-const authSlice = createSlice({
+const authSlice = createAppSlice({
   name: 'auth',
   initialState,
-  reducers: {
-    userLoggedIn(state, action: PayloadAction<string>) {
-      state.username = action.payload
-    },
-    userLoggedOut(state) {
-      state.username = null
-    },
+  reducers: (create) => {
+    return {
+      login: create.asyncThunk(
+        async (username: string) => {
+          await client.post('/fakeApi/login', { username })
+          return username
+        },
+        {
+          fulfilled: (state, action) => {
+            state.username = action.payload
+          },
+        },
+      ),
+      logout: create.asyncThunk(
+        async () => {
+          await client.post('/fakeApi/logout', {})
+        },
+        {
+          fulfilled: (state) => {
+            state.username = null
+          },
+        },
+      ),
+    }
   },
 })
 
-export const { userLoggedIn, userLoggedOut } = authSlice.actions
+export const { login, logout } = authSlice.actions
 
 export const selectCurrentUsername = (state: RootState) => state.auth.username
 
