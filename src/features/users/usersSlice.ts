@@ -1,26 +1,36 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
 import type { RootState } from '@/app/store'
 import { selectCurrentUsername } from '@/features/auth/authSlice'
+import { createAppSlice } from '@/app/createAppSlice'
+import { client } from '@/api/client'
 
 interface User {
   id: string
   name: string
 }
 
-const initialState: User[] = [
-  { id: '0', name: 'Tianna Jenkins' },
-  { id: '1', name: 'Kevin Grant' },
-  { id: '2', name: 'Madison Price' },
-]
+const initialState: User[] = []
 
-const usersSlice = createSlice({
+const usersSlice = createAppSlice({
   name: 'users',
   initialState,
-  reducers: {},
+  reducers: (create) => {
+    return {
+      fetchUsers: create.asyncThunk(
+        async () => {
+          const response = await client.get<User[]>('/fakeApi/users')
+          return response.data
+        },
+        {
+          fulfilled: (state, action) => action.payload,
+        },
+      ),
+    }
+  },
 })
 
 export default usersSlice.reducer
+
+export const { fetchUsers } = usersSlice.actions
 
 export const selectAllUsers = (state: RootState) => state.users
 

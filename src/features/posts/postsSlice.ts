@@ -24,6 +24,7 @@ export interface Post {
 }
 
 type PostUpdate = Pick<Post, 'id' | 'title' | 'content'>
+type NewPost = Pick<Post, 'title' | 'content' | 'user'>
 
 const initialReactions: Reactions = {
   thumbsUp: 0,
@@ -115,6 +116,20 @@ const postsSlice = createAppSlice({
           },
         },
       ),
+      addNewPost: create.asyncThunk(
+        async (initialPost: NewPost) => {
+          // We send the initial data to the fake API server
+          const response = await client.post<Post>('/fakeApi/posts', initialPost)
+          // The response includes the complete post object, including unique ID
+          return response.data
+        },
+        {
+          fulfilled: (state, action) => {
+            // We can directly add the new post object to the array
+            state.posts.push(action.payload)
+          },
+        },
+      ),
     }
   },
   extraReducers: (builder) => {
@@ -135,7 +150,7 @@ const postsSlice = createAppSlice({
   },
 })
 
-export const { postAdded, postUpdated, reactionAdded, fetchPosts } = postsSlice.actions
+export const { postAdded, postUpdated, reactionAdded, fetchPosts, addNewPost } = postsSlice.actions
 
 export const { selectAllPosts, selectPostById, selectPostsError, selectPostsStatus } = postsSlice.selectors
 
