@@ -5,6 +5,8 @@ import { client } from '@/api/client'
 import { logout } from '../auth/authSlice'
 import { createAppSlice } from '@/app/createAppSlice'
 
+import { apiSlice } from '@/features/api/apiSlice'
+
 export interface Reactions {
   thumbsUp: number
   tada: number
@@ -23,7 +25,7 @@ export interface Post {
   reactions: Reactions
 }
 
-type PostUpdate = Pick<Post, 'id' | 'title' | 'content'>
+export type PostUpdate = Pick<Post, 'id' | 'title' | 'content'>
 export type NewPost = Pick<Post, 'title' | 'content' | 'user'>
 
 const initialReactions: Reactions = {
@@ -144,7 +146,7 @@ export const selectPostsByUser = createSelector(
 
 export const addPostsListeners = (startAppListening: AppStartListening) => {
   startAppListening({
-    actionCreator: addNewPost.fulfilled,
+    matcher: apiSlice.endpoints.addNewPost.matchFulfilled,
     effect: async (action, listenerApi) => {
       const { toast } = await import('react-tiny-toast')
 

@@ -1,8 +1,9 @@
 import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { useAppSelector, useAppDispatch } from '@/app/hooks'
-import { postUpdated, selectPostById } from './postsSlice'
+import { Spinner } from '@/components/Spinner'
+
+import { useGetPostQuery, useEditPostMutation } from '@/features/api/apiSlice'
 
 // TS types for the input fields
 // See: https://epicreact.dev/how-to-type-a-react-form-on-submit-handler/
@@ -16,11 +17,11 @@ interface EditPostFormElements extends HTMLFormElement {
 
 export const EditPostForm = () => {
   const { postId } = useParams()
-
-  const post = useAppSelector((state) => selectPostById(state, postId!))
-
-  const dispatch = useAppDispatch()
   const navigate = useNavigate()
+
+  const { data: post } = useGetPostQuery(postId!)
+
+  const [updatePost, { isLoading }] = useEditPostMutation()
 
   if (!post) {
     return (
@@ -30,7 +31,7 @@ export const EditPostForm = () => {
     )
   }
 
-  const onSavePostClicked = (e: React.FormEvent<EditPostFormElements>) => {
+  const onSavePostClicked = async (e: React.FormEvent<EditPostFormElements>) => {
     // Prevent server submission
     e.preventDefault()
 
@@ -39,7 +40,7 @@ export const EditPostForm = () => {
     const content = elements.postContent.value
 
     if (title && content) {
-      dispatch(postUpdated({ id: post.id, title, content }))
+      await updatePost({ id: postId!, title, content })
       navigate(`/posts/${postId}`)
     }
   }
