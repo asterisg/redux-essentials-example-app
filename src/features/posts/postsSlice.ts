@@ -1,6 +1,5 @@
 import { RootState } from '@/app/store'
-import { createAppAsyncThunk } from '@/app/withTypes'
-import { nanoid } from '@reduxjs/toolkit'
+import { nanoid, createSelector } from '@reduxjs/toolkit'
 import { client } from '@/api/client'
 import { logout } from '../auth/authSlice'
 import { createAppSlice } from '@/app/createAppSlice'
@@ -147,10 +146,10 @@ const postsSlice = createAppSlice({
     },
     selectPostsStatus: (state) => state.status,
     selectPostsError: (state) => state.error,
-    selectPostsByUser: (state, userId: string) => {
-      // ❌ This seems suspicious! See more details below
-      return state.posts.filter((post) => post.user === userId)
-    },
+    selectPostsByUser: createSelector(
+      [(state: PostsState) => state.posts, (_state: PostsState, userId: string) => userId],
+      (posts, userId) => posts.filter((post) => post.user === userId),
+    ),
   },
 })
 

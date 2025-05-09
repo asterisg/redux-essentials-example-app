@@ -11,7 +11,7 @@ interface PostExcerptProps {
   post: Post
 }
 
-function PostExcerpt({ post }: PostExcerptProps) {
+const PostExcerpt = React.memo(({ post }: PostExcerptProps) => {
   return (
     <article className="post-excerpt" key={post.id}>
       <h3>
@@ -25,7 +25,7 @@ function PostExcerpt({ post }: PostExcerptProps) {
       <ReactionButtons post={post} />
     </article>
   )
-}
+})
 
 export const PostsList = () => {
   const dispatch = useAppDispatch()
